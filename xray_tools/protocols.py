@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import uuid
 from enum import Enum
-from typing import TextIO, Optional, List, Dict, Any
+from typing import Optional, List, Dict
 
 from pydantic import BaseModel, Field
 

@@ -16,7 +16,7 @@ pip install xray-tools
 
 ## Usage
 
-The root object is `xray_tools.config.XRayConfig`. Nested sections (`Inbound`, `Outbound`, `Routing`, `StreamSettings`, and the rest) are Pydantic models with the same field names as the [Xray JSON config](https://xtls.github.io/config/). `to_config_file()` drops fields whose value is `None`.
+The root object is `XRayConfig`, imported from `xray_tools`. Nested sections live in `xray_tools.models`, and enums such as `LogLevel` and `Network` live in `xray_tools.enums`. Field names match the [Xray JSON config](https://xtls.github.io/config/). `to_config_file()` drops fields whose value is `None`.
 
 VLESS and dokodemo-door have typed `settings`. VLESS clients are added and removed through `ProtocolSettingsVless`.
 
@@ -27,7 +27,7 @@ VLESS and dokodemo-door have typed `settings`. VLESS clients are added and remov
 ```python
 from pathlib import Path
 
-from xray_tools.config import XRayConfig
+from xray_tools import XRayConfig
 
 config = XRayConfig.from_config_file(Path("config.json").read_text())
 config.inbounds[0].settings.client_add(email="next@example.com")
@@ -37,20 +37,17 @@ Path("config.json").write_text(config.to_config_file(indent=2))
 ### Build a config
 
 ```python
-from xray_tools.config import (
+from xray_tools import XRayConfig
+from xray_tools.enums import LogLevel, Network, Security, SniffingDest
+from xray_tools.models import (
     Inbound,
     Log,
-    LogLevel,
-    Network,
     Outbound,
     RealitySettings,
     Routing,
     RoutingRule,
-    Security,
     Sniffing,
-    SniffingDest,
     StreamSettings,
-    XRayConfig,
 )
 from xray_tools.protocols import InboundProtocol, ProtocolSettingsVless
 

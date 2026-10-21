@@ -5,14 +5,15 @@ from pytest import fixture
 from pydantic import ValidationError
 
 from xray_tools import config
-from xray_tools import config as xray_config
+from xray_tools import enums
+from xray_tools import models
 from xray_tools import protocols
 
 
 # --- Fixture ---
 
 @fixture
-def xray_config_ex1() -> xray_config.XRayConfig:
+def xray_config_ex1() -> config.XRayConfig:
     return config.XRayConfig.from_config_file("""
         {
             "log": {"loglevel": "error"},
@@ -78,7 +79,7 @@ def test_create_empty_config():
     assert isinstance(c, str)
 
 
-def test_config_create_from_file(xray_config_ex1: xray_config.XRayConfig):
+def test_config_create_from_file(xray_config_ex1: config.XRayConfig):
     """
     Check type of config
     """
@@ -87,7 +88,7 @@ def test_config_create_from_file(xray_config_ex1: xray_config.XRayConfig):
         xray_config_ex1.inbounds[0].settings, protocols.ProtocolSettingsVless)
 
 
-def test_config_to_config_file(xray_config_ex1: xray_config.XRayConfig):
+def test_config_to_config_file(xray_config_ex1: config.XRayConfig):
     """
     Check as create dump
     """
@@ -102,44 +103,44 @@ def test_config_create_fill_01():
     """
     Создаем и заполняем конфиг
     """
-    config = xray_config.XRayConfig(
+    cfg = config.XRayConfig(
         inbounds=[
-            xray_config.Inbound(
+            models.Inbound(
                 settings=protocols.ProtocolSettingsVless(),
             )
         ]
     )
-    config.inbounds[0].settings.client_add(email="test@test.ru")
-    assert isinstance(config.to_config_file(), str)
+    cfg.inbounds[0].settings.client_add(email="test@test.ru")
+    assert isinstance(cfg.to_config_file(), str)
 
 
 def test_log_crete_default():
-    r = config.Log()
-    assert isinstance(r, config.Log)
+    r = models.Log()
+    assert isinstance(r, models.Log)
 
 
 def test_stream_settings():
-    r = config.StreamSettings()
-    assert isinstance(r, config.StreamSettings)
+    r = models.StreamSettings()
+    assert isinstance(r, models.StreamSettings)
 
 
 def test_inbound():
-    r = config.Inbound(settings=protocols.ProtocolSettingsVless())
-    assert isinstance(r, config.Inbound)
+    r = models.Inbound(settings=protocols.ProtocolSettingsVless())
+    assert isinstance(r, models.Inbound)
     assert r.protocol == protocols.InboundProtocol.vless
 
 
 def test_outbound():
-    r = config.Outbound()
-    assert isinstance(r, config.Outbound)
+    r = models.Outbound()
+    assert isinstance(r, models.Outbound)
 
 
 def test_stats():
-    r = xray_config.Stats()
-    assert isinstance(r, xray_config.Stats)
+    r = models.Stats()
+    assert isinstance(r, models.Stats)
 
     # Проверяем, что stats добавился как пустой словарь
-    obj = config.XRayConfig(stats=xray_config.Stats())
+    obj = config.XRayConfig(stats=models.Stats())
     cfg = json.loads(obj.to_config_file())
     assert cfg["stats"] == {}
 
@@ -150,8 +151,8 @@ def test_stats():
 
 
 def test_api():
-    r = xray_config.Api(tag="api")
-    assert isinstance(r, xray_config.Api)
+    r = models.Api(tag="api")
+    assert isinstance(r, models.Api)
 
     # Проверяем, что api не включен в config
     obj = config.XRayConfig()
@@ -160,9 +161,9 @@ def test_api():
 
     # Проверяем, что api добавился в config
     obj = config.XRayConfig(
-        api=xray_config.Api(
+        api=models.Api(
             tag="api",
-            services=[xray_config.ApiService.StatsService]
+            services=[enums.ApiService.StatsService]
         )
     )
     cfg = json.loads(obj.to_config_file())
@@ -170,16 +171,16 @@ def test_api():
 
 
 def test_policy():
-    r = xray_config.Policy()
-    assert isinstance(r, xray_config.Policy)
+    r = models.Policy()
+    assert isinstance(r, models.Policy)
 
     # Check level key format, raise ValidationError
     with pytest.raises(ValidationError):
-        xray_config.Policy(levels={"test": {}})
+        models.Policy(levels={"test": {}})
 
     # Check level key correct format
-    r = xray_config.Policy(levels={"0": xray_config.PolicyLevel()})
-    assert isinstance(r, xray_config.Policy)
+    r = models.Policy(levels={"0": models.PolicyLevel()})
+    assert isinstance(r, models.Policy)
 
     # Проверяем, что policy не включен в config
     obj = config.XRayConfig()
@@ -188,9 +189,9 @@ def test_policy():
 
     # Проверяем, что policy добавился в config
     obj = config.XRayConfig(
-        policy=xray_config.Policy(
+        policy=models.Policy(
             levels={
-                "0": xray_config.PolicyLevel(
+                "0": models.PolicyLevel(
                     statsUserUplink=True,
                 )
             }
