@@ -5,7 +5,7 @@ description = "Pure Python library for Xray-core configuration"
 authors = [{ name = "Alexey Matveev" }]
 license = "MIT"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "pydantic (>=2.0,<3.0.0)",
 ]
@@ -31,10 +31,10 @@ pytest = "^6.2.5"
 pytest-mock = "^3.6.1"
 
 [tool.black]
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.isort]
-py_version = 39
+py_version = 310
 profile = "black"
 
 [build-system]
