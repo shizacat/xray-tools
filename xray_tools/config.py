@@ -67,7 +67,8 @@ Example:
 
 from __future__ import annotations
 
-from typing import List, Optional, TextIO
+from pathlib import Path
+from typing import List, Optional
 
 from pydantic import Field
 
@@ -108,17 +109,39 @@ class XRayConfig(BaseModelConfig):
     )
 
     @classmethod
-    def from_config_file(cls, content: TextIO) -> XRayConfig:
+    def from_config(cls, config: str) -> XRayConfig:
         """
-        Create a configuration object from JSON text.
+        Create a configuration object from a JSON string.
 
         Args:
-            content: Configuration file contents.
+            config: Configuration as a JSON string.
         """
-        return cls.model_validate_json(content)
+        return cls.model_validate_json(config)
 
-    def to_config_file(self, indent=None) -> str:
+    @classmethod
+    def from_config_file(cls, path: str | Path) -> XRayConfig:
+        """
+        Create a configuration object by reading a JSON file.
+
+        Args:
+            path: Path to the configuration file.
+        """
+        return cls.from_config(Path(path).read_text(encoding="utf-8"))
+
+    def to_config(self, indent=None) -> str:
         """
         Return the configuration as a JSON string.
+
+        Fields whose value is ``None`` are omitted.
         """
         return self.model_dump_json(indent=indent, exclude_none=True)
+
+    def to_config_file(self, path: str | Path, indent=None) -> None:
+        """
+        Write the configuration to a JSON file.
+
+        Args:
+            path: Path to the configuration file.
+            indent: JSON indentation, forwarded to ``to_config``.
+        """
+        Path(path).write_text(self.to_config(indent=indent), encoding="utf-8")

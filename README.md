@@ -16,22 +16,20 @@ pip install xray-tools
 
 ## Usage
 
-The root object is `XRayConfig`, imported from `xray_tools`. Nested sections live in `xray_tools.models`, and enums such as `LogLevel` and `Network` live in `xray_tools.enums`. Field names match the [Xray JSON config](https://xtls.github.io/config/). `to_config_file()` drops fields whose value is `None`.
+The root object is `XRayConfig`, imported from `xray_tools`. Nested sections live in `xray_tools.models`, and enums such as `LogLevel` and `Network` live in `xray_tools.enums`. Field names match the [Xray JSON config](https://xtls.github.io/config/).
 
 VLESS and dokodemo-door have typed `settings`. VLESS clients are added and removed through `ProtocolSettingsVless`.
 
 ### Read and write
 
-`from_config_file()` takes JSON text, not a path.
+`from_config()` builds a config from a JSON string, and `to_config()` returns one. `from_config_file()` and `to_config_file()` read and write a JSON file. Fields whose value is `None` are omitted.
 
 ```python
-from pathlib import Path
-
 from xray_tools import XRayConfig
 
-config = XRayConfig.from_config_file(Path("config.json").read_text())
+config = XRayConfig.from_config_file("config.json")
 config.inbounds[0].settings.client_add(email="next@example.com")
-Path("config.json").write_text(config.to_config_file(indent=2))
+config.to_config_file("config.json", indent=2)
 ```
 
 ### Build a config
@@ -87,7 +85,7 @@ config = XRayConfig(
 )
 
 print(client.id)
-print(config.to_config_file(indent=2))
+print(config.to_config(indent=2))
 ```
 
 `client_add` generates a UUID when `client_id` is omitted. The same client (same id and email) is not added twice. `client_remove(client_id)` deletes by id.

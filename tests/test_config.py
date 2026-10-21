@@ -14,7 +14,7 @@ from xray_tools import protocols
 
 @fixture
 def xray_config_ex1() -> config.XRayConfig:
-    return config.XRayConfig.from_config_file("""
+    return config.XRayConfig.from_config("""
         {
             "log": {"loglevel": "error"},
             "inbounds": [
@@ -71,11 +71,11 @@ def test_create_empty_config():
     obj = config.XRayConfig()
 
     # get config
-    c = obj.to_config_file()
+    c = obj.to_config()
     assert isinstance(c, str)
 
     # get config with indent
-    c = obj.to_config_file(indent=4)
+    c = obj.to_config(indent=4)
     assert isinstance(c, str)
 
 
@@ -88,11 +88,21 @@ def test_config_create_from_file(xray_config_ex1: config.XRayConfig):
         xray_config_ex1.inbounds[0].settings, protocols.ProtocolSettingsVless)
 
 
+def test_from_config_file(tmp_path, xray_config_ex1: config.XRayConfig):
+    path = tmp_path / "config.json"
+    xray_config_ex1.to_config_file(path)
+
+    loaded = config.XRayConfig.from_config_file(path)
+
+    assert loaded.inbounds[0].tag == "vless_tls"
+    assert isinstance(loaded.inbounds[0].settings, protocols.ProtocolSettingsVless)
+
+
 def test_config_to_config_file(xray_config_ex1: config.XRayConfig):
     """
     Check as create dump
     """
-    dump = xray_config_ex1.to_config_file()
+    dump = xray_config_ex1.to_config()
     assert isinstance(dump, str)
     dump_dict = json.loads(dump)
     assert len(dump_dict["inbounds"][0]["settings"]["clients"]) == 1
@@ -111,7 +121,7 @@ def test_config_create_fill_01():
         ]
     )
     cfg.inbounds[0].settings.client_add(email="test@test.ru")
-    assert isinstance(cfg.to_config_file(), str)
+    assert isinstance(cfg.to_config(), str)
 
 
 def test_log_crete_default():
@@ -141,12 +151,12 @@ def test_stats():
 
     # Проверяем, что stats добавился как пустой словарь
     obj = config.XRayConfig(stats=models.Stats())
-    cfg = json.loads(obj.to_config_file())
+    cfg = json.loads(obj.to_config())
     assert cfg["stats"] == {}
 
     # Check, that stats is not included in config
     obj = config.XRayConfig()
-    cfg = json.loads(obj.to_config_file())
+    cfg = json.loads(obj.to_config())
     assert "stats" not in cfg
 
 
@@ -156,7 +166,7 @@ def test_api():
 
     # Проверяем, что api не включен в config
     obj = config.XRayConfig()
-    cfg = json.loads(obj.to_config_file())
+    cfg = json.loads(obj.to_config())
     assert "api" not in cfg
 
     # Проверяем, что api добавился в config
@@ -166,7 +176,7 @@ def test_api():
             services=[enums.ApiService.StatsService]
         )
     )
-    cfg = json.loads(obj.to_config_file())
+    cfg = json.loads(obj.to_config())
     assert cfg["api"]["tag"] == "api"
 
 
@@ -184,7 +194,7 @@ def test_policy():
 
     # Проверяем, что policy не включен в config
     obj = config.XRayConfig()
-    cfg = json.loads(obj.to_config_file())
+    cfg = json.loads(obj.to_config())
     assert "policy" not in cfg
 
     # Проверяем, что policy добавился в config
@@ -197,7 +207,7 @@ def test_policy():
             }
         )
     )
-    cfg = json.loads(obj.to_config_file())
+    cfg = json.loads(obj.to_config())
     assert cfg["policy"]["levels"]["0"]["statsUserUplink"] is True
 
 
@@ -218,7 +228,7 @@ def test_ws_settings_roundtrip():
         }],
     }
     cfg = _XRayConfig.model_validate_json(_json.dumps(raw))
-    out = _json.loads(cfg.to_config_file())
+    out = _json.loads(cfg.to_config())
     ws = out["inbounds"][0]["streamSettings"]["wsSettings"]
     assert ws["path"] == "/media/stream/abc"
     assert ws["host"] == "cloud.example.org"
