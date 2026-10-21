@@ -1,0 +1,54 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  publish:
+    name: Publish
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/xray-tools
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set version from the tag
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          sed -i "s/^__version__ = \".*\"/__version__ = \"${version}\"/" xray_tools/__init__.py
+
+      - name: Build
+        run: |
+          pip install build
+          python -m build
+
+      - name: Verify version matches the tag
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          shopt -s nullglob
+          wheels=(dist/*-"${version}"-*.whl)
+          sdists=(dist/*-"${version}".tar.gz)
+          if (( ${#wheels[@]} == 0 || ${#sdists[@]} == 0 )); then
+            echo "Expected version ${version} in dist/, got:"
+            ls -la dist
+            exit 1
+          fi
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
