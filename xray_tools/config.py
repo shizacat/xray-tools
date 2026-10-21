@@ -79,7 +79,7 @@ from pydantic import (
     RootModel,
     field_validator,
     model_validator,
-    constr
+    constr,
 )
 
 from .protocols import (
@@ -89,7 +89,6 @@ from .protocols import (
     ProtocolSettingsDokodemoDoor,
 )
 from .base import BaseModelConfig
-
 
 # Enums
 
@@ -194,12 +193,10 @@ class Api(BaseModelConfig):
         }
     }
     """
-    tag: str = Field(
-        ..., description="The identifier of this inbound connection"
-    )
+
+    tag: str = Field(..., description="The identifier of this inbound connection")
     listen: Optional[str] = Field(
-        None,
-        description="The listening address. Example: 127.0.0.1:8080"
+        None, description="The listening address. Example: 127.0.0.1:8080"
     )
     services: List[ApiService] = Field(
         default_factory=list,
@@ -218,19 +215,16 @@ class Log(BaseModelConfig):
 
 
 # Ограничиваем ключи только строками, которые соответствуют числу
-PolicyLevelKey = constr(pattern=r'^\d+$')
+PolicyLevelKey = constr(pattern=r"^\d+$")
 
 
 class PolicyLevel(BaseModelConfig):
     """
     Level Policy Object
     """
-    handshake: Optional[int] = Field(
-        None, description="Handshake timeout in seconds"
-    )
-    connIdle: Optional[int] = Field(
-        None, description="Idle timeout in seconds"
-    )
+
+    handshake: Optional[int] = Field(None, description="Handshake timeout in seconds")
+    connIdle: Optional[int] = Field(None, description="Idle timeout in seconds")
     uplinkOnly: Optional[int] = Field(
         None, description="Uplink only timeout in seconds"
     )
@@ -246,13 +240,12 @@ class PolicyLevel(BaseModelConfig):
     statsUserOnline: Optional[bool] = Field(
         None, description="Enable statistics collection for user online"
     )
-    bufferSize: Optional[int] = Field(
-        None, description="Buffer size in bytes"
-    )
+    bufferSize: Optional[int] = Field(None, description="Buffer size in bytes")
 
 
 class PolicySystem(BaseModelConfig):
     """Policy System"""
+
     statsInboundUplink: Optional[bool] = Field(
         None, description="Enable statistics collection for inbound uplink"
     )
@@ -296,6 +289,7 @@ class Policy(BaseModelConfig):
         }
     }
     """
+
     levels: Dict[PolicyLevelKey, PolicyLevel] = Field(
         default_factory=dict,
         description=(
@@ -305,8 +299,7 @@ class Policy(BaseModelConfig):
         ),
     )
     system: PolicySystem = Field(
-        default_factory=PolicySystem,
-        description="System policy settings"
+        default_factory=PolicySystem, description="System policy settings"
     )
 
 
@@ -342,8 +335,7 @@ class TLSSettings(BaseModel):
     alpn: List[str] = Field(
         ["h2", "http/1.1"],
         description=(
-            "An array of strings specifying the ALPN values used "
-            "in TLS handshakes"
+            "An array of strings specifying the ALPN values used " "in TLS handshakes"
         ),
     )
     minVersion: str = Field("1.2")
@@ -371,9 +363,7 @@ class TLSSettings(BaseModel):
     )
     fingerprint: str = Field(
         "",
-        description=(
-            "Specifies the fingerprint of the TLS Client Hello message"
-        ),
+        description=("Specifies the fingerprint of the TLS Client Hello message"),
     )
     pinnedPeerCertificateChainSha256: List[str] = Field(
         default_factory=list,
@@ -482,22 +472,12 @@ class StreamSettings(BaseModelConfig):
         Security.none,
         description="Whether to enable transport layer encryption",
     )
-    tlsSettings: TLSSettings | None = Field(
-        None, description="Configures vanilla TLS"
-    )
+    tlsSettings: TLSSettings | None = Field(None, description="Configures vanilla TLS")
     tcpSettings: TCPSettings | None = Field(None, description="Configures TCP")
-    kcpSettings: KCPSettings | None = Field(
-        default=None, description="Configures KCP"
-    )
-    wsSettings: WSSettings | None = Field(
-        None, description="Configures WebSocket"
-    )
-    httpSettings: HttpSettings | None = Field(
-        None, description="Configures HTTP"
-    )
-    grpcSettings: GrpcSettings | None = Field(
-        None, description="Configures gRPC"
-    )
+    kcpSettings: KCPSettings | None = Field(default=None, description="Configures KCP")
+    wsSettings: WSSettings | None = Field(None, description="Configures WebSocket")
+    httpSettings: HttpSettings | None = Field(None, description="Configures HTTP")
+    grpcSettings: GrpcSettings | None = Field(None, description="Configures gRPC")
     httpupgradeSettings: HTTPUpgradeSettings | None = Field(
         None, description="Configures HTTP"
     )
@@ -589,24 +569,17 @@ class Inbound(BaseModelConfig):
     listen: str = Field(
         "0.0.0.0",
         description=(
-            "The listening address, "
-            "either an IP address or a Unix domain socket."
+            "The listening address, " "either an IP address or a Unix domain socket."
         ),
     )
     port: int | str = Field(1080, description="The listening port")
     # Fill from settings model
-    protocol: InboundProtocol = Field(
-        ..., description="The connection protocol name"
-    )
+    protocol: InboundProtocol = Field(..., description="The connection protocol name")
     settings: Union[
-        ProtocolSettingsBase,
-        ProtocolSettingsVless,
-        ProtocolSettingsDokodemoDoor
+        ProtocolSettingsBase, ProtocolSettingsVless, ProtocolSettingsDokodemoDoor
     ] = Field(
         default_factory=ProtocolSettingsBase,
-        description=(
-            "The specific configuration content depends on the protocol"
-        ),
+        description=("The specific configuration content depends on the protocol"),
     )
     streamSettings: StreamSettings = Field(
         default_factory=StreamSettings,
@@ -658,9 +631,7 @@ class Inbound(BaseModelConfig):
 
 
 class Outbound(BaseModelConfig):
-    sendThrough: str = Field(
-        "0.0.0.0", description="The IP address used to send data."
-    )
+    sendThrough: str = Field("0.0.0.0", description="The IP address used to send data.")
     protocol: InboundProtocol = Field(
         InboundProtocol.freedom, description="The connection protocol name"
     )
@@ -695,13 +666,13 @@ class XRayConfig(BaseModelConfig):
     """
     Содержит полную конфигурацию XRay сервера
     """
-    stats: Optional[Stats] = Field(
-        None, description="Включает сбор статистики")
+
+    stats: Optional[Stats] = Field(None, description="Включает сбор статистики")
     api: Optional[Api] = Field(
-        None, description="API interface configuration provides a set of APIs")
+        None, description="API interface configuration provides a set of APIs"
+    )
     policy: Optional[Policy] = Field(
-        None,
-        description="Local policy can be used to set different policy settings"
+        None, description="Local policy can be used to set different policy settings"
     )
     log: Log = Field(default_factory=Log)
     routing: Routing = Field(

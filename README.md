@@ -6,15 +6,16 @@ Links:
 - https://github.com/XTLS/Xray-core
 - https://xtls.github.io/config/
 
-# Install
+## Install
 
 ```bash
 pip install xray-tools
 ```
 
-# Development
+## Development
 
 Run tests:
+
 ```bash
 pytest
 ```

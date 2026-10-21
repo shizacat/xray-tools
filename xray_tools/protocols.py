@@ -70,9 +70,7 @@ class VlessSettingFlow(str, Enum):
 
 
 class ClientVless(BaseModelConfig):
-    id: str = Field(
-        default_factory=gen_uuid, description="Unique ID of the client"
-    )
+    id: str = Field(default_factory=gen_uuid, description="Unique ID of the client")
     level: int = Field(0, description="Level of the client")
     email: str = Field(..., description="Email of the client")
     flow: Optional[VlessSettingFlow] = Field(
@@ -95,8 +93,7 @@ class ProtocolSettingsVless(ProtocolSettingsBase):
     fallbacks: List[Dict] = Field(
         default_factory=list,
         description=(
-            "An array that contains a series of powerful fallback "
-            "configurations"
+            "An array that contains a series of powerful fallback " "configurations"
         ),
     )
 
@@ -115,13 +112,10 @@ class ProtocolSettingsVless(ProtocolSettingsBase):
         """
         Remove a client from the protocol
         """
-        self.clients = [
-            client for client in self.clients if client.id != client_id
-        ]
+        self.clients = [client for client in self.clients if client.id != client_id]
 
 
 class ProtocolSettingsDokodemoDoor(ProtocolSettingsBase):
-    protocol: InboundProtocol = Field(
-        InboundProtocol.dokodemo_door, exclude=True)
+    protocol: InboundProtocol = Field(InboundProtocol.dokodemo_door, exclude=True)
 
     address: str = Field(..., description="Address to bind to")
