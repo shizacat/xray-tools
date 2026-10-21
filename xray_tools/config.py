@@ -67,17 +67,12 @@ Example:
 
 from __future__ import annotations
 
-import json
 from enum import Enum
 from typing import TextIO, Optional, List, Dict, Type, ClassVar, Union
 
-# from pydantic import BaseModel, Field, root_validator
 from pydantic import (
     BaseModel,
     Field,
-    ConfigDict,
-    RootModel,
-    field_validator,
     model_validator,
     constr,
 )
@@ -90,8 +85,8 @@ from .protocols import (
 )
 from .base import BaseModelConfig
 
-# Enums
 
+# --- Enums ---
 
 class LogLevel(str, Enum):
     """
@@ -170,8 +165,7 @@ class ApiService(str, Enum):
     StatsService = "StatsService"
 
 
-# Classes
-
+# --- Classes ---
 
 class Stats(BaseModelConfig):
     """
@@ -214,7 +208,7 @@ class Log(BaseModelConfig):
     dnsLog: bool = Field(False)
 
 
-# Ограничиваем ключи только строками, которые соответствуют числу
+# Restrict keys to strings that represent a number
 PolicyLevelKey = constr(pattern=r"^\d+$")
 
 
@@ -458,7 +452,6 @@ class StreamSettings(BaseModelConfig):
     in the inbound or outbound config.
     Each inbound or outbound can be configured with different
     transports and can use streamSettings to specify local configs.
-
     """
 
     network: Network = Field(
@@ -664,10 +657,10 @@ class Outbound(BaseModelConfig):
 
 class XRayConfig(BaseModelConfig):
     """
-    Содержит полную конфигурацию XRay сервера
+    Full Xray server configuration.
     """
 
-    stats: Optional[Stats] = Field(None, description="Включает сбор статистики")
+    stats: Optional[Stats] = Field(None, description="Enables statistics collection")
     api: Optional[Api] = Field(
         None, description="API interface configuration provides a set of APIs"
     )
@@ -697,16 +690,15 @@ class XRayConfig(BaseModelConfig):
     @classmethod
     def from_config_file(cls, content: TextIO) -> XRayConfig:
         """
-        Создает объект конфигурации из файла. Config format is json.
+        Create a configuration object from JSON text.
 
         Args:
-            content: Содержимое файла конфигурации
+            content: Configuration file contents.
         """
         return cls.model_validate_json(content)
 
     def to_config_file(self, indent=None) -> str:
         """
-        Возвращает отрендеренный конфигурационный файл.
-        Json dump
+        Return the configuration as a JSON string.
         """
         return self.model_dump_json(indent=indent, exclude_none=True)
