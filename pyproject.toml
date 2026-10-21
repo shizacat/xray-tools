@@ -4,6 +4,7 @@ dynamic = ["version"]
 description = "Pure Python library for Xray-core configuration"
 authors = [{ name = "Alexey Matveev" }]
 license = "MIT"
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
